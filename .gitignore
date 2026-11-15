@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# Backups written on every save (the previous version of a project file)
+*.bak
+
+# Tool caches
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Macro library shipped with the original program: not part of this project's code.
+# Tests that need it are skipped when the folder is missing.
+MAKROS/
+
+# Editors and systems
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Program builds (python build.py)
+dist/
+
+# Not published: the author's sample boards and reference outputs used by some tests
+# (they are skipped without them), boards edited for checking, the development plan.
+Samples/
+Verification/
+ROADMAP.md
+release.md

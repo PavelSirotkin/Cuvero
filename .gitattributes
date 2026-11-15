@@ -1,0 +1,13 @@
+# Text files keep LF line endings on every platform, also on Windows checkouts.
+* text=auto eol=lf
+
+# Board, macro and manufacturing files are binary or must stay byte-exact.
+*.lay6 binary
+*.lmk binary
+*.LMK binary
+*.gbr binary
+*.DRL binary
+*.drl binary
+*.png binary
+*.ico binary
+Samples/textio/*.txt binary

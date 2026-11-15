@@ -1,0 +1,35 @@
+[project]
+name = "lay6-editor"
+version = "0.1"  # the same as VERSION in version.py
+description = "Редактор печатных плат в формате .lay6 (Windows, Linux, macOS)"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = ["PySide6>=6.5"]
+
+[project.optional-dependencies]
+dev = ["ruff>=0.6", "mypy>=1.10"]  # also listed in requirements-dev.txt
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+extend-exclude = ["MAKROS", "Samples", "Verification"]
+
+[tool.ruff.lint]
+# pycodestyle, pyflakes, import order, bugbear, modern syntax, comprehensions, simplifications
+select = ["E", "W", "F", "I", "B", "UP", "C4", "SIM", "PIE"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["core", "ui"]
+
+[tool.mypy]
+python_version = "3.10"
+files = ["main.py", "build.py", "version.py", "core", "ui", "tests"]
+check_untyped_defs = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+no_implicit_optional = true
+
+# The file-format core has no Qt and should stay fully typed.
+[[tool.mypy.overrides]]
+module = "core.*"
+disallow_untyped_defs = true
