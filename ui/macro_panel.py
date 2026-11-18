@@ -44,6 +44,7 @@ class MacroPreview(QGraphicsView):
         self.path = None
         self.side = "top"
         self.turns = 0  # quarter turns clockwise
+        self.vias = False  # through-hole pads placed plated through
         self.elements = []
         self.label = QLabel("Перетащите на плату", self)
         self.label.setStyleSheet("color: #c0c0c0; background: transparent;")
@@ -73,7 +74,7 @@ class MacroPreview(QGraphicsView):
         scene.clear()
         if not self.elements:
             return
-        placed = core.strip_labels(core.place_macro(self.elements, 0, 0, self.side))
+        placed = core.strip_labels(core.place_macro(self.elements, 0, 0, self.side, self.vias))
         if self.turns:
             placed = core.rotate_all(placed, -90 * self.turns)
         warnings: set[str] = set()
@@ -173,7 +174,13 @@ class MacroPanel(QWidget):
             self.delete_macro,
         )
         button(tool_icon("rotate"), "Повернуть макрос на 90° по часовой стрелке", self.rotate)
-        button(tool_icon("via"), "Переходные отверстия — пока не реализовано")
+        # As in the original: not remembered between runs, off at start.
+        self.vias_button = button(
+            tool_icon("via"),
+            "Переходные отверстия: площадки макроса ставятся металлизированными сквозными",
+            self.set_vias,
+        )
+        self.vias_button.setCheckable(True)
         buttons.addStretch()
         self.side_button = QToolButton()
         self.side_button.setIcon(tool_icon("macro_side"))
@@ -217,6 +224,10 @@ class MacroPanel(QWidget):
         self.preview.side = side if side in ("top", "bottom") else "top"
         self.side_button.setText("ВЕРХ" if self.preview.side == "top" else "НИЗ")
         self.settings.setValue("macro/side", self.preview.side)
+        self.preview.redraw()
+
+    def set_vias(self, on):
+        self.preview.vias = bool(on)
         self.preview.redraw()
 
     def rotate(self):

@@ -78,6 +78,28 @@ class MainWindowTest(WindowTestCase):
         self.assertEqual([e.kind for e in again], [e.kind for e in elements])
 
     @unittest.skipUnless(DIP.exists(), "no macro library in MAKROS")
+    def test_macro_vias_button(self):
+        w = self.window
+        macro = core.load_macro(DIP)
+        self.assertFalse(any(e.plated for e in macro if e.kind == core.THT))
+        placed = core.place_macro(macro, 0, 0, "top", vias=True)
+        self.assertTrue(all(e.plated for e in placed if e.kind == core.THT))
+        # The button is off at start, as in the original, and changes the next drop.
+        self.assertFalse(w.macros.vias_button.isChecked())
+        w.macros.as_component.setChecked(False)
+        w.macros.vias_button.click()
+        self.assertTrue(w.macros.preview.vias)
+        w.place_macro("top", str(DIP), (20.0, -12.0))
+        pads = [e for e in w.view.elements[self.count :] if e.kind == core.THT]
+        self.assertEqual(len(pads), 14)
+        self.assertTrue(all(pad.plated for pad in pads))
+        w.macros.vias_button.click()
+        count = len(w.view.elements)
+        w.place_macro("top", str(DIP), (40.0, -12.0))
+        pads = [e for e in w.view.elements[count:] if e.kind == core.THT]
+        self.assertFalse(any(pad.plated for pad in pads))
+
+    @unittest.skipUnless(DIP.exists(), "no macro library in MAKROS")
     def test_component_is_dragged_as_a_whole(self):
         w = self.window
         w.macros.as_component.setChecked(True)

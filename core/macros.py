@@ -111,9 +111,11 @@ def transformed(
 
 
 def place_macro(
-    elements: Sequence[Element], x: float, y: float, side: str = "top"
+    elements: Sequence[Element], x: float, y: float, side: str = "top", vias: bool = False
 ) -> list[Element]:
-    """Macro objects centred at (x, y) on the chosen board side, without group links."""
+    """Macro objects centred at (x, y) on the chosen board side, without group links.
+    With vias, every through-hole pad becomes plated through, as the original's
+    «Through-Pads (Vias)» button of the macro library does."""
     left, bottom, right, top = bounds(elements)
     cx, cy = (left + right) / 2, (bottom + top) / 2
     layers = dict(MACRO_LAYERS[side])
@@ -128,6 +130,8 @@ def place_macro(
         record = bytearray(moved.record)
         if record:
             record[COMPONENT_ID] = bytes(3)
+        if vias and moved.kind == THT:
+            moved = replace(moved, plated=True)
         placed.append(replace(moved, groups=b"", record=bytes(record), connections=b""))
     return placed
 

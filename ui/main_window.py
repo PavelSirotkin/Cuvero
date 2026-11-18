@@ -1564,7 +1564,8 @@ class MainWindow(QMainWindow, BoardActions, OutputActions, ExtrasActions):
             QMessageBox.warning(self, "Не удалось загрузить макрос", f"{Path(path).name}\n{error}")
             return
         x, y = position
-        placed = core.place_macro(elements, x, y, side)
+        vias = self.macros.vias_button.isChecked()
+        placed = core.place_macro(elements, x, y, side, vias)
         if not placed:
             return
         name = Path(path).stem
