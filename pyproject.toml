@@ -1,6 +1,6 @@
 [project]
 name = "lay6-editor"
-version = "0.2"  # the same as VERSION in version.py
+version = "0.3"  # the same as VERSION in version.py
 description = "Редактор печатных плат в формате .lay6 (Windows, Linux, macOS)"
 requires-python = ">=3.10"
 license = { text = "MIT" }

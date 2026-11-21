@@ -4,9 +4,9 @@ import contextlib
 import sys
 from pathlib import Path
 
-from PySide6.QtCore import QLibraryInfo, QLocale, QTranslator
-from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QApplication
+from PySide6.QtCore import QEvent, QLibraryInfo, QLocale, QObject, QTranslator
+from PySide6.QtGui import QIcon, QKeyEvent
+from PySide6.QtWidgets import QApplication, QDoubleSpinBox
 
 from version import VERSION
 
@@ -36,6 +36,36 @@ def install_russian(app: QApplication) -> bool:
     return True
 
 
+class DecimalPoint(QObject):
+    """Number fields take a point as well as a comma: a point typed into a field with
+    decimals becomes the field's decimal sign (a comma in Russian), so the point key
+    of an English keyboard layout or of the number pad works too."""
+
+    def eventFilter(self, watched: QObject, event: QEvent) -> bool:  # noqa: N802 (Qt)
+        if (
+            event.type() == QEvent.Type.KeyPress
+            and isinstance(watched, QDoubleSpinBox)
+            and isinstance(event, QKeyEvent)
+            and event.text() in (".", ",")
+        ):
+            sign = watched.locale().decimalPoint()
+            if event.text() != sign:
+                key = QKeyEvent(
+                    QEvent.Type.KeyPress, event.key(), event.modifiers(), sign, event.isAutoRepeat()
+                )
+                QApplication.sendEvent(watched, key)
+                return True
+        return super().eventFilter(watched, event)
+
+
+def accept_decimal_point(app: QApplication) -> None:
+    if app.property("decimal_point_installed"):
+        return
+    point = DecimalPoint(app)  # the application owns it, so it lives as long
+    app.installEventFilter(point)
+    app.setProperty("decimal_point_installed", True)
+
+
 def app_icon() -> QIcon:
     """The program's icon (empty if the file is missing)."""
     return QIcon(str(ICON)) if ICON.exists() else QIcon()
@@ -56,3 +86,4 @@ def setup_application(app: QApplication) -> None:
     app.setWindowIcon(app_icon())
     own_taskbar_entry()
     install_russian(app)
+    accept_decimal_point(app)
